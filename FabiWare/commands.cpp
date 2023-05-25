@@ -100,7 +100,8 @@ void printCurrentSlot()
       buttons[i].mode=CMD_NC;
     }
     
-    strcpy_FM(cmdStr, (uint_farptr_t_FM) atCommands[actCmd].atCmd);
+
+    strcpy_FM(cmdStr, atCommands[actCmd].atCmd);
     Serial.print(cmdStr);
     switch (pgm_read_byte_near(&(atCommands[actCmd].partype)))
     {

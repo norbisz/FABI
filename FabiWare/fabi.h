@@ -124,8 +124,8 @@ uint16_t  keystringMemUsage(uint8_t button);
 void parseCommand (char * cmdstr);
 void parseByte (int newByte);
 
-#define strcpy_FM   strcpy_PF
-#define strcmp_FM   strcmp_PF
+#define strcpy_FM   strcpy
+#define strcmp_FM   strcmp
 typedef uint_farptr_t uint_farptr_t_FM;
 
 

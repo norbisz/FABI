@@ -18,22 +18,22 @@
 */
 
 
-#include "fabi.h"
-#include "eepromStorage.h"
-#include "mouseControl.h"
-#include "keys.h"
-#include "buttons.h"
-#include "display.h"
-#include "NeoPixel.h"
+ #include "fabi.h"
+ #include "eepromStorage.h"
+ #include "mouseControl.h"
+ #include "keys.h"
+ #include "buttons.h"
+ #include "display.h"
+ #include "NeoPixel.h"
 
-#include <Wire.h>
-#include <SPI.h>
+ #include <Wire.h>
+ #include <SPI.h>
 
 
 
-#define PCB_checkPin 14     // Input Pin to be checked: Grounded == FABI PCB Version (with LCD / Buzzer / Neopixel)
+ #define PCB_checkPin 14     // Input Pin to be checked: Grounded == FABI PCB Version (with LCD / Buzzer / Neopixel)
 
-int8_t  led_map[NUMBER_OF_LEDS] = {14, 15, 16};
+ int8_t  led_map[NUMBER_OF_LEDS] = {14, 15, 16};
 
 const struct settingsType defaultSettings = {      // type definition see fabi.h
   "slot1", DEFAULT_WHEEL_STEPSIZE, DEFAULT_TRESHOLD_TIME,
@@ -63,140 +63,140 @@ int freeRam();
    Initialisation of HW and peripherals.
 */
 void setup() {
-  //load settings
-  memcpy(&settings,&defaultSettings,sizeof(struct settingsType));
-  Serial.begin(9600);    // open serial port for AT commands / GUI communication
-  Serial1.begin(9600);   // open the serial port for BT-Module 
-  delay(1000);           // allow some time for the BT-Module to start ...
+//   //load settings
+//   memcpy(&settings,&defaultSettings,sizeof(struct settingsType));
+//   Serial.begin(9600);    // open serial port for AT commands / GUI communication
+//   Serial1.begin(9600);   // open the serial port for BT-Module 
+//   delay(1000);           // allow some time for the BT-Module to start ...
   
-  Mouse.begin();
-  Keyboard.begin();
-  initDebouncers();
+//   Mouse.begin();
+//   Keyboard.begin();
+//   initDebouncers();
   
-  //check if PCB or old (floating wire) FABI is used (checkPin to ground = PCB):
-  pinMode(PCB_checkPin, INPUT_PULLUP);
+//   //check if PCB or old (floating wire) FABI is used (checkPin to ground = PCB):
+//   pinMode(PCB_checkPin, INPUT_PULLUP);
  
-  if (!digitalRead(PCB_checkPin)) {            //PCB Version detected
-    PCBversion = 1;
-    #ifdef DEBUG_OUTPUT
-        Serial.println("FABI PCB Version");
-    #endif
+//   if (!digitalRead(PCB_checkPin)) {            //PCB Version detected
+//     PCBversion = 1;
+//     #ifdef DEBUG_OUTPUT
+//         Serial.println("FABI PCB Version");
+//     #endif
 
-    // turn off built-in LEDs
-    pinMode(LED_BUILTIN_RX, INPUT);
-    pinMode(LED_BUILTIN_TX, INPUT);
+//     // turn off built-in LEDs
+//     pinMode(LED_BUILTIN_RX, INPUT);
+//     pinMode(LED_BUILTIN_TX, INPUT);
 
-    // init peripherals 
-    initDisplay();
-    delay(100);
-    initNeoPixel();
-    initBuzzer();
-  }
-  else {    // no PCB Version:
-    TXLED1;    //turn on TX_LED
+//     // init peripherals 
+//     initDisplay();
+//     delay(100);
+//     initNeoPixel();
+//     initBuzzer();
+//   }
+//   else {    // no PCB Version:
+//     TXLED1;    //turn on TX_LED
 
-    // configure the leds for slot indication as output
-    for (int i = 0; i < NUMBER_OF_LEDS; i++)
-      pinMode (led_map[i], OUTPUT);  
-  }
+//     // configure the leds for slot indication as output
+//     for (int i = 0; i < NUMBER_OF_LEDS; i++)
+//       pinMode (led_map[i], OUTPUT);  
+//   }
 
-  // initialise button pins and debouncers
-  initButtons();
+//   // initialise button pins and debouncers
+//   initButtons();
 
-  // read button modes from first EEPROM slot (if available)
-  bootstrapEEPROM();
-  readFromEEPROM(0);
+//   // read button modes from first EEPROM slot (if available)
+//   bootstrapEEPROM();
+//   readFromEEPROM(0);
 
-  //initialise BT module, if available
-  initBluetooth();
-  if (!isBluetoothAvailable()) {
-    // in case no BT-Module: prevent floating RX pin of serial1 !
-    pinMode(0,INPUT_PULLUP);
-    Serial1.flush();
-  }
+//   //initialise BT module, if available
+//   initBluetooth();
+//   if (!isBluetoothAvailable()) {
+//     // in case no BT-Module: prevent floating RX pin of serial1 !
+//     pinMode(0,INPUT_PULLUP);
+//     Serial1.flush();
+//   }
 
-  // initialise peripheral HW for PCB version
-  if (PCBversion) {
-    writeSlot2Display();
-    updateNeoPixelColor(1); 
-  }
+//   // initialise peripheral HW for PCB version
+//   if (PCBversion) {
+//     writeSlot2Display();
+//     updateNeoPixelColor(1); 
+//   }
 
-  #ifdef DEBUG_OUTPUT
-    Serial.println("Flexible Assistive Button Interface started !");
-    Serial.print(F("Free RAM:"));  Serial.println(freeRam());
-  #endif
-}
+//   #ifdef DEBUG_OUTPUT
+//     Serial.println("Flexible Assistive Button Interface started !");
+//     Serial.print(F("Free RAM:"));  Serial.println(freeRam());
+//   #endif
+ }
 
 
-/**
-   @name loop
-   @param none
-   @return none
+// /**
+//    @name loop
+//    @param none
+//    @return none
 
-   main program loop, processes serial commands and button actions. 
-*/
-void loop() {
+//    main program loop, processes serial commands and button actions. 
+// */
+ void loop() {
 
-  //check if we should go into addon upgrade mode
-	if(addonUpgrade != BTMODULE_UPGRADE_IDLE) {
-    performAddonUpgrade();
-    return;
-	}
+//   //check if we should go into addon upgrade mode
+// 	if(addonUpgrade != BTMODULE_UPGRADE_IDLE) {
+//     performAddonUpgrade();
+//     return;
+// 	}
 
-  // get and parse incoming bytes for Serial
-  while (Serial.available() > 0) {
-    int inByte = Serial.read();
-    parseByte (inByte);      // implemented in parser.cpp
-  }
+//   // get and parse incoming bytes for Serial
+//   while (Serial.available() > 0) {
+//     int inByte = Serial.read();
+//     parseByte (inByte);      // implemented in parser.cpp
+//   }
 
-  // if incoming data from BT-addOn: forward it to host serial interface
-  while (Serial1.available() > 0) {
-    Serial.write(Serial1.read());
-  }
+//   // if incoming data from BT-addOn: forward it to host serial interface
+//   while (Serial1.available() > 0) {
+//     Serial.write(Serial1.read());
+//   }
   
-  // update button states and perform periodic mouse updates
-  if (millis() - updateTimestamp >= waitTime) {
+//   // update button states and perform periodic mouse updates
+//   if (millis() - updateTimestamp >= waitTime) {
     
-    updateTimestamp = millis();
-    updateButtons();
-    updateMouse();
+//     updateTimestamp = millis();
+//     updateButtons();
+//     updateMouse();
 
-    if (PCBversion) {
-      //UpdateBuzzer();       // generate tones (indicating slot change)
-      UpdateNeoPixel();     // update the brightness of the NeoPixel if slotchange occured
-    }
-    else UpdateLeds();      // update slot indication leds in case no PCB version
-  }
-}
+//     if (PCBversion) {
+//       //UpdateBuzzer();       // generate tones (indicating slot change)
+//       UpdateNeoPixel();     // update the brightness of the NeoPixel if slotchange occured
+//     }
+//     else UpdateLeds();      // update slot indication leds in case no PCB version
+//   }
+// }
 
-/**
-   @name UpdateLeds
-   @param none
-   @return none
+// /**
+//    @name UpdateLeds
+//    @param none
+//    @return none
 
-   indicates active configuration slot via 3 external LEDs.
-   Note that the LEDs must be wired as "active low".
-   (only for non-PCB version)
-*/
-void UpdateLeds()
-{
-  if (!PCBversion) {
-    if (actSlot == 1) digitalWrite (led_map[0], LOW); else digitalWrite (led_map[0], HIGH);
-    if (actSlot == 2) digitalWrite (led_map[1], LOW); else digitalWrite (led_map[1], HIGH);
-    if (actSlot == 3) digitalWrite (led_map[2], LOW); else digitalWrite (led_map[2], HIGH);
-  }
-}
+//    indicates active configuration slot via 3 external LEDs.
+//    Note that the LEDs must be wired as "active low".
+//    (only for non-PCB version)
+// */
+// void UpdateLeds()
+// {
+//   if (!PCBversion) {
+//     if (actSlot == 1) digitalWrite (led_map[0], LOW); else digitalWrite (led_map[0], HIGH);
+//     if (actSlot == 2) digitalWrite (led_map[1], LOW); else digitalWrite (led_map[1], HIGH);
+//     if (actSlot == 3) digitalWrite (led_map[2], LOW); else digitalWrite (led_map[2], HIGH);
+//   }
+// }
 
-/**
-   @name freeRam
-   @param none
-   @return none
+// /**
+//    @name freeRam
+//    @param none
+//    @return none
 
-   returns currently free RAM bytes.
-*/
-int freeRam ()
-{
-  extern int __heap_start, *__brkval;
-  int v;
-  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
-}
+//    returns currently free RAM bytes.
+// */
+// int freeRam ()
+// {
+//   extern int __heap_start, *__brkval;
+//   int v;
+//   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
+ }

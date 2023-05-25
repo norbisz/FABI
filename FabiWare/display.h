@@ -16,7 +16,7 @@
 #define _DISPLAY_H_
 
 
-#include "ssd1306.h"    //  display Lib
+//#include "ssd1306.h"    //  display Lib
 
 
 void initDisplay();

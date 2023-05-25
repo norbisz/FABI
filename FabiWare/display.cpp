@@ -27,13 +27,13 @@ void initDisplay(){
       // Note the the font selection heavily influences program memory utilisation!
       
       //ssd1306_setFixedFont(ssd1306xled_font6x8);
-      ssd1306_setFixedFont(ssd1306xled_font8x16);
+      // ssd1306_setFixedFont(ssd1306xled_font8x16);
 
-      ssd1306_128x32_i2c_init();
-      ssd1306_clearScreen();
+      // ssd1306_128x32_i2c_init();
+      // ssd1306_clearScreen();
 
-      //ssd1306_print("Normal text");
-      ssd1306_drawXBitmap(36, 0, 55, 32, FABIlogo);
+      // //ssd1306_print("Normal text");
+      // ssd1306_drawXBitmap(36, 0, 55, 32, FABIlogo);
 }
 
 /**
@@ -44,15 +44,15 @@ void initDisplay(){
    writes the slot number and BT/USB mode indicator to the LCD
 */
 void writeSlot2Display(){ 
-  ssd1306_clearScreen();
+  // ssd1306_clearScreen();
 
-  for(uint8_t i=0; i < actSlot; i++)
-    ssd1306_printFixed(i*10, 0, "*", STYLE_NORMAL);
+  // for(uint8_t i=0; i < actSlot; i++)
+  //   ssd1306_printFixed(i*10, 0, "*", STYLE_NORMAL);
 
-  switch(settings.bt){
-    case 3:  ssd1306_printFixed(60, 0, "(USB+BT)", STYLE_NORMAL);  break;
-    case 1:  ssd1306_printFixed(85, 0, "(USB)", STYLE_NORMAL);  break;
-    case 2:  ssd1306_printFixed(90, 0, "(BT)", STYLE_NORMAL);  break;
-  }
-  ssd1306_printFixed(0, 20, settings.slotname, STYLE_NORMAL);
+  // switch(settings.bt){
+  //   case 3:  ssd1306_printFixed(60, 0, "(USB+BT)", STYLE_NORMAL);  break;
+  //   case 1:  ssd1306_printFixed(85, 0, "(USB)", STYLE_NORMAL);  break;
+  //   case 2:  ssd1306_printFixed(90, 0, "(BT)", STYLE_NORMAL);  break;
+  // }
+  // ssd1306_printFixed(0, 20, settings.slotname, STYLE_NORMAL);
 }
